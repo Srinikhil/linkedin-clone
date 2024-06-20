@@ -2,7 +2,7 @@
 
 import { useUser } from "@clerk/nextjs"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { useRef, useState } from "react";
 
@@ -24,7 +24,7 @@ function PostForm() {
 
   return (
     <div>
-        <form ref={ref} action="">
+        <form ref={ref} action="" className="p-3 bg-white rounded-lg border">
             <div className="flex items-center space-x-2">
             <Avatar>
                 <AvatarImage src={user?.imageUrl} />
@@ -65,18 +65,29 @@ function PostForm() {
             )}
 
 
-
-            <div> 
+            <div className="flex justify-end mt-2 space-x-2"> 
                 <Button type='button' onClick={() => fileInputRef.current?.click()}>
                     <ImageIcon className="mr-2" size={16} color="currentColor" />
-                    Add
+                    {preview ? "Change" : "Add"} Image
                 </Button>
+                
+                {preview && (
+                    <Button variant="outline" type="button" onClick={() => setPreview(null)}>
+                        <XIcon className="mr-2" size={16} color="currentColor" />
+                        Remove Image
+                    </Button>
+                )}
+
             </div>
+            
 
 
 
 
         </form>
+
+        <hr className="mt-2 border-gray-300"/>
+
     </div>
   )
 }
