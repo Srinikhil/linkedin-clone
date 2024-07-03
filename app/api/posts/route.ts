@@ -28,19 +28,23 @@ export async function POST(request: Request) {
 
     } catch(error) {
         return NextResponse.json (
-            {error: `Error occured while creating the post ${error}`},
+            {error: "Error occured while creating the post"},
             {status: 500}
         );
     }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
+
+        console.log('Imported Post:', Post);
+
         await connectDB();
 
         const posts = await Post.getAllPosts();
+        console.log(posts);
         
-        return NextResponse.json({posts});
+        return NextResponse.json({ posts });
     } catch (error) {
         return NextResponse.json (
             {error: `Error occured while fetching the post ${error}`},

@@ -1,6 +1,6 @@
 import { Comment, IComment, ICommentBase } from "@/types/comment";
 import { IUser } from "@/types/users";
-import mongoose, {Schema, Document, models, Model} from "mongoose";
+import mongoose, {Schema, Document, Model, models} from "mongoose";
 
 export interface IPostBase {
     user: IUser;
@@ -12,6 +12,7 @@ export interface IPostBase {
 
 
 export interface IPost extends IPostBase, Document {
+    _id: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -88,24 +89,29 @@ PostSchema.methods.commentOnPost = async function (commentToAdd:ICommentBase) {
     }
 };
 
-PostSchema.methods.getAllPosts = async function () {
+PostSchema.statics.getAllPosts = async function () {
     try {
         const posts = await this.find()
         .sort({ createdAt: -1 })
         .populate({
             path: "comments",
-            options: { sort: { createdAt: -1 }}
-        }).lean()   // lean() converts mongoose object to a js object
+            options: { sort: { createdAt: -1 }},
+        })
+        // .populate("likes")
+        .lean();   // lean() converts mongoose object to a js object
 
-
+        
         return posts.map((post: IPostDocument) => ({
             ...post,
             // _id: post._id.toString(),
-            _id: post._id,
+            _id: post._id && typeof post._id.toString === 'function' ? post._id.toString() : String(post._id),
+            // _id: post._id,
             comments: post.comments?.map((comment: IComment) => ({
                 ...comment,
                 // _id: comment._id.toString(),
-                _id: comment._id,
+                _id: comment._id && typeof comment._id.toString === 'function' ? comment._id.toString() : String(comment._id),
+                // _id: comment._id,
+
             })),
         }));
 
@@ -128,4 +134,23 @@ PostSchema.methods.getAllComments = async function () {
 };
 
 
-export const Post = (models.post as IPostModel) || mongoose.model<IPostDocument, IPostModel>("Post", PostSchema);
+// If error occurs saying mongoose cannot create post once created, uncomment the below lines and run it again.
+
+// if (mongoose.models.Post) {
+//     delete mongoose.models.Post;
+// }
+
+
+console.log('models.Post:', models.Post);
+
+const Post = models.Post as IPostModel || mongoose.model<IPostDocument, IPostModel>("Post", PostSchema);
+
+// const Post = mongoose.model<IPostDocument, IPostModel>("Post", PostSchema);
+
+// console.log('models.Post:', models.Post);
+// console.log('Post:', Post);
+// console.log('Post.getAllPosts:', Post.getAllPosts);
+
+export { Post };
+
+// export const Post = (models.Post as IPostModel) || mongoose.model<IPostDocument, IPostModel>("Post", PostSchema);

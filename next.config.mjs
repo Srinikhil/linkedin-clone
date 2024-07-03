@@ -10,10 +10,10 @@ const nextConfig = {
             protocol: "https",
             hostname: "image.clerk.com",
           },
-        //   {
-        //     protocol: "https",
-        //     hostname: "linkedinclone.blob.core.windows.net",
-        //   },
+          {
+            protocol: "https",
+            hostname: "linkedinclonesnk.blob.core.windows.net",
+          },
 
 
         ],
