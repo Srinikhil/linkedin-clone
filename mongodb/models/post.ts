@@ -80,12 +80,13 @@ PostSchema.methods.removePost = async function (userId:string) {
 }
 
 PostSchema.methods.commentOnPost = async function (commentToAdd:ICommentBase) {
+    console.log(commentToAdd);
     try {
         const comment = await Comment.create(commentToAdd);
-        this.comment.push(comment._id);
+        this.comments.push(comment._id);
         await this.save();
     } catch(error) {
-        console.log("Failed to Comment on the Post", error)
+        console.log("Failed to Comment on the Post", error);
     }
 };
 
@@ -136,16 +137,16 @@ PostSchema.methods.getAllComments = async function () {
 
 // If error occurs saying mongoose cannot create post once created, uncomment the below lines and run it again.
 
-// if (mongoose.models.Post) {
-//     delete mongoose.models.Post;
-// }
+if (mongoose.models.Post) {
+    delete mongoose.models.Post;
+}
 
 
 console.log('models.Post:', models.Post);
 
-const Post = models.Post as IPostModel || mongoose.model<IPostDocument, IPostModel>("Post", PostSchema);
+// const Post = models.Post as IPostModel || mongoose.model<IPostDocument, IPostModel>("Post", PostSchema);
 
-// const Post = mongoose.model<IPostDocument, IPostModel>("Post", PostSchema);
+const Post = mongoose.model<IPostDocument, IPostModel>("Post", PostSchema);
 
 // console.log('models.Post:', models.Post);
 // console.log('Post:', Post);

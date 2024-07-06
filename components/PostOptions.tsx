@@ -1,15 +1,18 @@
 "use client";
 
 import { IPostDocument } from "@/mongodb/models/post"
-import { useUser } from "@clerk/nextjs";
+import { SignedIn, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { MessageCircle, Repeat2, Send, ThumbsUpIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LikePostRequestBody } from "@/app/api/posts/[post_id]/like/route";
 import { UnlikePostRequestBody } from "@/app/api/posts/[post_id]/unlike/route";
+import CommentFeed from "./CommentFeed";
+import CommentForm from "./CommentForm";
 
-function PostOptions( {post} : { post: IPostDocument} ) {
+
+function PostOptions( {postId, post} : { postId: string, post: IPostDocument} ) {
     const [isCommentsOpen, setIsCommentsOpen] = useState(false);
     const { user } = useUser();
     const [liked, setLiked] = useState(false);
@@ -21,7 +24,7 @@ function PostOptions( {post} : { post: IPostDocument} ) {
         }
     }, [post, user]);
 
-    const likeOrUnlikePost =async () => {
+    const likeOrUnlikePost = async () => {
         if(!user?.id) {
             throw new Error("User not authenticated");
         }
@@ -45,24 +48,36 @@ function PostOptions( {post} : { post: IPostDocument} ) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify({ ...body }),
         });
 
-        if(!response.ok) {
+        // if(!response.ok) {
+        //     setLiked(originalLiked);
+        //     setLikes(originalLikes);
+
+        //     throw new Error("Failed to like or unlike the post")
+        // }
+
+        // const fetchLikesResponse = await fetch(`/api/post/${post._id}/like`);
+
+        // if(!fetchLikesResponse.ok) {
+        //     setLiked(originalLiked);
+        //     setLikes(originalLikes);
+
+        //     throw new Error("Failed to fetch likes");
+        // }
+
+
+          if (!response.ok) {
             setLiked(originalLiked);
+            throw new Error("Failed to like post");
+          }
+      
+          const fetchLikesResponse = await fetch(`/api/posts/${postId}/like`);
+          if (!fetchLikesResponse.ok) {
             setLikes(originalLikes);
-
-            throw new Error("Failed to like or unlike the post")
-        }
-
-        const fetchLikesResponse = await fetch(`/api/post/${post._id}/like`);
-
-        if(!fetchLikesResponse.ok) {
-            setLiked(originalLiked);
-            setLikes(originalLikes);
-
             throw new Error("Failed to fetch likes");
-        }
+          }
 
         const newLikedData = await fetchLikesResponse.json();
         setLikes(newLikedData);
@@ -86,6 +101,7 @@ function PostOptions( {post} : { post: IPostDocument} ) {
                 {post?.comments && post.comments.length > 0 && (
                     <p
                         onClick={() => setIsCommentsOpen(!isCommentsOpen)}
+                        className="text-xs text-gray-500 cursor-pointer hover:underline"
                     >
                         {post.comments.length} comments
                     </p>
@@ -127,15 +143,17 @@ function PostOptions( {post} : { post: IPostDocument} ) {
             </Button>
 
         </div>
-
+        <SignedIn>
         {isCommentsOpen && (
-            <div>
-                {/* {user?.id && <CommentForm postId={postId} />} */}
-                {/* <CommentFeed post={post} /> */}
+            <div className="p-4">
+                {/* <SignedIn>
+                    <CommentForm postId={ post._id } />
+                </SignedIn> */}
+                    {user?.id && <CommentForm postId={postId} />}
+                    <CommentFeed post={post} />
             </div>
         )}
-
-
+        </SignedIn>
     </div>
     )
 }
