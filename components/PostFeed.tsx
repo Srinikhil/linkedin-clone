@@ -5,7 +5,7 @@ async function PostFeed({ posts }: { posts: IPostDocument[]}) {
   return (
     <div className="space-y-2 pb-20">
         {posts?.map((post) => (
-            console.log('post._id type:', typeof post._id),
+            // console.log('post._id type:', typeof post._id),
             <Post key={post._id} post={post} />
         ))}
 

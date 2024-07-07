@@ -11,4 +11,5 @@ function Widget() {
   );
 }
 
-export default Widget
+
+export default Widget;
